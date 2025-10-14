@@ -9,4 +9,5 @@ This a repository containing homework solution and writing notes for the course 
 - Recommanded Reference: [线性统计模型，王松桂等](https://book.douban.com/subject/1230309/),[统计学 魏宗舒](https://book.douban.com/subject/1588297/)
 
 # Quick Start
-- There 6 homework solutions, 2 lecture notes, 1 review notes in total.
+- There 6 homework solutions,3 lab solution, 2 lecture notes, 1 review notes in total.
+- You could compile the .tex file with online Overleaf or local tex studio.
