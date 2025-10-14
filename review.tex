@@ -1,0 +1,160 @@
+\documentclass[cn,hazy,green,12pt,normal]{elegantnote}
+
+\title{整体回顾和复习要点}
+\author{24Spring 回归分析\\
+卞泽宇}
+\date{\today}
+
+\usepackage{array}
+
+\usepackage{amsmath, amssymb, bm, color, framed, graphicx, hyperref, mathrsfs, fontspec, geometry, extarrows, amsthm}
+
+\DeclareMathOperator{\e}{\!\!\;\mathrm e}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\var}{var}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\diag}{diag}
+\newcommand{\p}{\partial}
+\renewcommand{\d}{\mathop{}\!\mathrm{d}}
+\newcommand{\MR}{\mathbb R}
+\newcommand{\MC}{\mathbb C}
+\newcommand{\MF}{\mathbb F}
+\newcommand{\MZ}{\mathbb Z}
+\newcommand{\MN}{\mathbb N}
+\newcommand{\MCF}{\mathscr F}
+\renewcommand{\Re}{\operatorname{Re}}
+\renewcommand{\Im}{\operatorname{Im}}
+\renewcommand{\boldsymbol}{\bm}
+\renewcommand{\i}{\mathrm i}
+
+\DeclareMathOperator{\Arg}{Arg}
+\DeclareMathOperator{\I}{I}
+\usepackage{tkz-euclide}
+\numberwithin{equation}{section}
+\numberwithin{subsection}{section}
+
+\lstset{
+    language=R,
+    basicstyle=\ttfamily,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    frame=single,
+    breaklines=true
+}
+
+\begin{document}
+\maketitle
+\section{整体回顾}
+\subsection{课程回顾}
+这门课从简单假设下的线性回归模型开始分析，得出一系列OLS估计（回归系数，残差均方等），并进一步考察他们的性质（无偏性，无偏类中方差最小？）。接着介绍了残差分析和强影响分析的一些诊断图以及改善模型的一些手段（比如对$y$做boxcox变换），并在随机误差方差不齐的情况下介绍了GLS估计和IRLS求解方法。之后我们在随机误差服从正态的假设下，利用方差分析表导出若干假设检验问题，以此来评估模型在不同线性约束下拟合优度的差异，并将其作为变量选择的一个简单基准。
+
+然后我们开始考虑因变量的预测问题，并提出了MSEP作为极小化的目标（核心是方差-偏差分解），我们在$L^2$度量下要平衡模型估计的准确性和稳定性，因此考虑更多无偏估计类之外的估计量（岭估计和主成分估计）。这些估计量要选择合适的参数（岭估计中的压缩系数$\lambda$，主成分估计中选取前$m$个主成分）来牺牲一点无偏性，换取大幅度的方差下降。并且我们能求解在何种情况下MSEP确实能小于原估计的。
+
+最后我们考虑整体模型的变量选择问题，既要尽可能包含所有重要变量，又要尽可能简约，于是提出了若干变量选择的准则（$RMS_q, C_p, AIC, BIC$）。接着我们根据这些准则，按不同的方法挑选最优的变量子集（枚举法，向前向后法...）
+\subsection{个人理解}
+整体上来看，这门课的核心目的在于给同学们打下扎实的理论上基础，是相当重要的统计基础课。我们很多时候假设设计阵是列满秩的，又或者原始模型是正确的，只需要进一步去变量选择。然而实际场景中（比如基因中PRS问题），其中的自变量（SNPs）总计能达到20Million，样本却只有~200K,相差近两个数量级。这时候数据处理的各种问题就会暴露出来，我们也要提出更恰当的统计方法或模型。
+
+学完这门课程后，我想大家应当要理解数学模型上的重要思想（比如投影的观念和角度），并且建立对模型选择的感性认识，大致知道怎么去用统计方法评估优劣。而为了应付考试，也要下功夫去熟练掌握基本计算，并背一些检验量的公式和检验准则（尽管实际应用中，一些准则用处不大，比如强影响分析中未修正样本量的F检验，Hoerl-Kennard公式），复习要点中也会提到一些必背的内容。
+
+最后就我个人目前已学知识，课程最后介绍的logistic regression可以作为统计学习及机器学习的很好引子。尤其是近年大火深度学习（logistic regression可以看作单层神经网络，Linear+Sigmoid，能很好地解决线性可分问题）。就传统的机器学习而言，我们会发展Decision Tree, Neural Network, Support Vector Machine(SVM), Bayesian Classifier, Ensemble Learning 及 Unsupervised Learning, Reinforcement Learning等各种方法。
+
+其中得益于硬件算力的提升(GPU高效并行计算)和超大的训练数据集，Neural Network有着令人惊异的表现。依托MultiLayer Perceptron（MLP），我们如今已发展多种网络架构，著名的用于解决图像问题的Covolutional Neural Networks(CNN)，解决序列分析问题的Recurssive Neural Network(RNN)。目前热度很高的GPT背后的关键技术（Transformer）其实也是统计语言模型，运用前面已经生成过的文字去预测输出下一个字。
+
+在这些领域，表面上看核心是数据导向和end-to-end的解决方法（即所谓暴力出奇迹）。但事实上统计和概率上的分析都必不可少（比如依据KL散度提出优化函数，变分法中的Lower bound，激活函数的选取等等）。看似相较于建立统计解释，我们更关心优化问题和优化算法（比如直接将Ridge Estimate当作$L^2$问题求解，Lasso问题求解$L^1$约束），但事实上建立insightful 的模型来得到一些Closed form（比如CV中DDM模型马氏链），进而免去大体量的计算和内存占用更应该是我们学统计的人关心的问题。也就是多关注解释性而不是盲目调参炼丹，毕竟科研的关键就是探究”为什么“。
+
+以上只是我对回归分析课程后续可能的机器学习方向做的浅显分析，给大家提供一个不同于学CS的人看待AI的视角，错漏之处和主观判断在所难免，需要大家审慎看待。祝大家学完本课程后能更好地找到日后的方向，逐渐明晰未来规划。
+
+\section{复习要点}
+\textbf{核心思路： 掌握PPT内容及作业题题型。}
+
+\subsection{OLS估计}
+\subsubsection{样本模型}
+对设计阵的看法：\begin{enumerate}
+    \item 按行：独立采样n个样本。
+    \item 按列：对p个特征进行采样。
+\end{enumerate}
+
+随机误差项的一般假设：\textbf{Gauss-Markov假设}（截距可辨识，等方差，不相关）。
+
+常见假设：多元正态假设。
+
+\subsubsection{OLS估计}
+\textbf{解的约束方程}：$X^T(y-X\hat{\beta})=0$（可以理解成残差和设计阵列空间垂直）
+
+当设计阵列满秩时存在唯一解。此时解的矩阵表达为？利用样本协方差阵表达为？
+
+OLS估计与极大似然估计，矩估计的关系。
+
+中心化模型下，回归系数OLS估计与原模型OLS估计之间的关系？（在有截距模型中，相当于每个特征对向量$\bm 1$做去相关化，也相当于对协方差阵$X^TX$打洞分块）
+
+标准化模型下（注意这里对每一列除以其二范数，使得列向量模长为1。而不是除以标准差来近似正态分布），OLS估计与原模型OLS估计联系（每一个分量差一个$s_j$的倍数）。
+
+从协方差阵得到相关系数阵？（cov2cor）
+
+\subsection{OLS估计的性质}
+在GM假设下，OLS估计构成唯一具有最小方差的估计。
+
+拟合值，残差，响应之间的协方差？（利用矩阵表示计算，投影角度思考）
+
+有截距模型和无截距模型的对比（重点在于是否对自变量中心化）
+
+RSS和$\hat{\sigma}^2$定义，其直观解释。
+
+\textbf{常用公式}：随机向量X满足$E(X)=\mu,\quad Cov(X)=\Sigma$ 则任意对应尺寸方阵A有$E(x^TAx)=\mu^TA\mu + tr(A\Sigma)$。
+
+正态假设下判别独立性？（化简到关于随机误差的某矩阵形式，再考虑$AB^T=0$是否成立）。正态假设下一些统计量的分布？（同样化简，若结果为二次型则考虑卡方分布，线性组合考虑新的正态分布）
+
+独立性的一些结论（OLS估计和RSS独立）
+
+投影矩阵（H矩阵）的若干性质。（对称幂等，tr,rank）
+
+测定系数$R^2$的计算？（区分无截距模型），其空间解释($Cos^2(\theta)$)。
+
+\subsection{约束最小二乘}
+利用Lagrange乘子法求解（标量对向量求导方法？）
+
+约束解公式（选择性记忆）：$\hat{\beta}_{con} = \hat{\beta}-(X^TX)^{-1}A^T(A(X^TX)^{-1}A^T)^{-1}(A\hat{\beta}-b)$
+
+对应的空间解释和方差分析联系？（选择性理解）
+
+\subsection{残差分析}
+帽子矩阵（H）的对角元含义？（杠杆）
+
+学生化内残差：$r_i = \dfrac{\hat{e}_i}{\hat{\sigma}\sqrt{1-h_{ii}}}$
+
+异常值检验一般方法？（漂移模型），重点看第三次作业题。
+
+删除某样本后新的参数估计为：$\hat{\beta}_{(i)} = \hat{\beta}-\dfrac{\hat{e}_i}{1-h_{ii}}(X^TX)^{-1}\Tilde{x_i}$
+
+残差均方$\hat{\sigma^2}_{(i)}=\hat{\sigma}^2\dfrac{n-p-r_i^2}{n-p-1}$
+
+漂移模型下独立性的推导？检验量的导出？
+
+学生化外残差：$t_i = \dfrac{\hat{e}_i}{\hat{\sigma}_{(i)}\sqrt{1-h_{ii}}}$
+
+与方差分析中F检验的联系？
+
+残差分析图表的相关结论（重点看第三次作业）
+
+\subsection{强影响分析}
+\textbf{Cook距离}：$D_i = \dfrac{(\hat{\beta}-\hat{\beta}_{(i)})^T(X^TX)(\hat{\beta}-\hat{\beta}_{(i)})}{p\hat{\sigma}^2}=\dfrac{1}{p}(\dfrac{h_{ii}}{1-h_{ii}}r_i^2)$
+
+原假设成立下服从怎样的F分布（可推导置信椭圆）
+
+\subsection{Box-Cox变化}
+方差稳定性变换（与delta方法联系？）
+
+Box-cox变换中$\lambda$值的选取？（wilks定理，极大似然法）
+
+变换后对新拟合模型的拟合效果解释？（是否改善正态性，方差齐性等）
+
+\subsection{GLS估计}
+随机误差方差矩阵已知和未知情况分别讨论。
+
+已知情况下：利用矩阵变换化归到OLS模型假设。（从而传承BLUE性质）优化函数目标的加权形式？（权重与方差相关，成倒数关系。即方差越小，越重视）
+
+未知情形：两步估计或IRLS估计。（明白大致思想）
+
+
+\end{document}

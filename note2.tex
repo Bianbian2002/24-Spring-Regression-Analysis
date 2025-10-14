@@ -1,0 +1,171 @@
+\documentclass[cn,hazy,green,12pt,normal]{elegantnote}
+
+\title{回归分析第三次习题课}
+\author{卞泽宇}
+\institute{USTC}
+
+\date{\today}
+
+\usepackage{array}
+
+\usepackage{amsmath, amssymb, bm, color, framed, graphicx, hyperref, mathrsfs, fontspec, geometry, extarrows, amsthm}
+
+\DeclareMathOperator{\e}{\!\!\;\mathrm e}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\var}{var}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\diag}{diag}
+\newcommand{\p}{\partial}
+\renewcommand{\d}{\mathop{}\!\mathrm{d}}
+\newcommand{\MR}{\mathbb R}
+\newcommand{\MC}{\mathbb C}
+\newcommand{\MF}{\mathbb F}
+\newcommand{\MZ}{\mathbb Z}
+\newcommand{\MN}{\mathbb N}
+\newcommand{\MCF}{\mathscr F}
+\renewcommand{\Re}{\operatorname{Re}}
+\renewcommand{\Im}{\operatorname{Im}}
+\renewcommand{\boldsymbol}{\bm}
+\renewcommand{\i}{\mathrm i}
+
+\DeclareMathOperator{\Arg}{Arg}
+\DeclareMathOperator{\I}{I}
+\usepackage{tkz-euclide}
+\numberwithin{equation}{section}
+\numberwithin{subsection}{section}
+
+\lstset{
+    language=R,
+    basicstyle=\ttfamily,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    frame=single,
+    breaklines=true
+}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{补充内容}
+\subsection{约束最小二乘估计、方差分析}
+从线性空间分解的角度看约束最小二乘,我们考虑约束条件$A\bm\beta = c$,$A$为$q\times p$的行满秩矩阵。（也可以运用到方差分析中的$H_0$下模型）
+其解集为“线性空间+平移”，因此我们先考虑约束条件$A\bm\beta=0$。
+\begin{theorem}
+    设$X \in \MR^{n\times p}$列满秩，$A \in \MR^{q\times p}$行满秩，$V=C(X),V_0=\left\{X\bm \beta | A\bm \beta = 0  \right\}$
+
+    则\[V_0 = V \cap C(X(X^TX)^{-1}A^T)^{\perp},\quad P_V = P_{V_0}+P_{X(X^TX)^{-1}A^T}\]
+\end{theorem}
+
+\begin{proof}
+    左包含$\subseteq$:
+\[
+    \forall \bm u \in V_0, \bm u = X\bm \beta_u \in V,\quad A
+    \beta_u=0,\quad
+    \forall \bm v = X(X^TX)^{-1}A^Tw\in C(X(X^TX)^{-1}A^T),
+    \]
+    
+    $\langle u,v\rangle=\langle X\bm \beta_u,X(X^TX)^{-1}A^Tw \rangle=
+    \langle \beta_u,A^Tw\rangle=\langle A
+    \beta_u,w\rangle=0$，
+    因此$u\in C(X(X^TX)^{-1}A^T)^{\perp}$,进而左包含。
+    
+\noindent 右包含$\supseteq$:
+\[\forall u \in V\cap C(X(X^TX)^{-1}A^T)^{\perp}, \quad u=X\bm \beta_u ,\quad \forall v\in \MR^{q}:\]
+$0 = \langle u,X(X^TX)^{-1}A^Tv\rangle =\langle X\bm \beta_u,X(X^TX)^{-1}A^Tv \rangle =
+\langle \beta_u,A^Tv\rangle =\langle A\beta_u,v\rangle$。取$v = A\beta_u$得到$A\beta_u=0$,故$u\in V_0$
+
+进而由于$C(X(X^TX)^{-1}A^T) \subseteq V$,故$V = V_0 \oplus C(X(X^TX)^{-1}A^T)$,从而得到投影算子分解。
+\end{proof}
+
+\begin{corollary}
+    \begin{enumerate}
+        \item 满足条件$A\bm\beta=0$的约束最小二乘估计为
+        \[\hat{\bm\beta}_{con}=\hat{\bm\beta} - (X^TX)^{-1}A^T(A(X^TX)^{-1}A^T)^{-1}A\hat{\bm\beta}\]
+        \item 满足条件$A\bm\beta=b$的约束最小二乘估计为
+        \[\hat{\bm\beta}_{con}=\hat{\bm\beta} - (X^TX)^{-1}A^T(A(X^TX)^{-1}A^T)^{-1}(A\hat{\bm\beta}-b)\]
+    \end{enumerate}
+\end{corollary}
+
+\begin{proof}
+(1)我们有
+\begin{align*}
+    X\hat{\bm\beta}_{con}=P_{V_0}\bm y &= P_{V}\bm y - P_{X(X^TX)^{-1}A^T}\bm y\\
+    &=X\hat{\bm\beta}-(X(X^TX)^{-1}A^T)(A(X^TX)^{-1}A^T)^{-1}A(X^TX)^{-1}X^T\bm y \\
+    &=X\hat{\bm\beta}-(X(X^TX)^{-1}A^T)(A(X^TX)^{-1}A^T)^{-1}A\hat{\bm\beta}
+\end{align*}  
+从而两侧乘$X$左逆($X$列满秩)得到结论。
+
+\noindent (2)设延正交补空间平移向量为$X(X^TX)^{-1}A^T u$则
+\[
+\begin{cases}
+    X\hat{\bm\beta}_{con}&=P_{V_0}\bm y+X(X^TX)^{-1}A^T u\\
+    b&=A\hat{\bm\beta}_{con}=A(\hat{\bm\beta} - (X^TX)^{-1}A^T(A(X^TX)^{-1}A^T)^{-1}A\hat{\bm\beta}+(X^TX)^{-1}A^Tu)
+\end{cases}
+\]
+
+故$u=(A(X^TX)^{-1}A^T)^{-1}b$
+代入即得
+\end{proof}
+\subsection[测定系数及其多元推广]{$R^2$及其多元推广}
+我们知道$R^2$是对回归模型拟合优度的一种度量，刻画因变量能被自变量线性解释部分所占的比例（$RSS_{reg}/RSS$）。
+
+先从总体模型出发，在第一节习题课中，我们知道决定系数$\phi:=\dfrac{\var(\bm x^T b)}{\var (y)}=\dfrac{\Sigma_{y\bm x}\Sigma_{\bm x\bm x}^{-1}\Sigma_{\bm x y}}{\Sigma_{yy}}$。刻画了随机变量$y$被随机变量$x\in \MR^n$的分量线性组合解释的程度。将总体模型中的参数替换为估计值，即得到$R^2=\dfrac{S_{y\bm x}S_{\bm x\bm x}^{-1}S_{\bm x y}}{S_{yy}}=\dfrac{(SYX) (SXX)^{-1}(SXY)}{SYY}$
+
+\begin{definition}[典则相关系数 Canonical Correlation Coefficient]
+    设随机变量$\bm y \in \MR^m,\bm x \in \MR^n$考虑半正定阵\[\Phi =\Sigma_{\bm y\bm y}^{-\frac{1}{2}}(\Sigma_{\bm y\bm x}\Sigma_{\bm x\bm x}^{-1}\Sigma_{\bm x\bm y})\Sigma_{\bm y \bm y}^{-\frac{1}{2}}\]
+    其最大特征根的平方根$\sqrt{\lambda_{max}(\Phi)}$称为第一典则相关系数。
+\end{definition}
+
+\begin{remark}
+    (1)m=1时，即为决定系数$\phi$，这是在回归分析中重点讨论的内容。
+    
+    \noindent (2)同样刻画了$\bm x$和$\bm y$的相关程度，见定理\ref{relation}。
+\end{remark}
+
+\begin{theorem}
+    设A和B为$n\times n$对称矩阵，定义$A\leq B：$若$A-B\leq 0$(半负定)。设$\lambda(A)$表示A的任意特征值，则：
+
+    \begin{enumerate}
+        \item 若$A\leq I$则$\lambda(A)\leq 1$
+        \item $0\leq \Phi \leq I$
+        \item $0\leq \lambda(\Phi)\leq 1$
+    \end{enumerate}
+\end{theorem}
+
+\begin{proof}
+   注意到$\Sigma_{\bm y\bm y \cdot \bm x}\geq 0$，其余自证不难。
+\end{proof}
+
+\begin{theorem}\label{relation}
+    设随机变量$\bm y \in \MR^m,\bm x \in \MR^n$,常向量$\bm a,\bm b$,则
+    \[
+    \max_{\substack{0\neq \bm a \in \MR^n\\0\neq \bm b \in \MR^m}} \rho(\bm a^T \bm x,\bm b^T \bm y)=\sqrt{\lambda_{max}(\Phi)}
+    \]
+\end{theorem}
+
+\begin{proof}
+\begin{align*}
+        |\rho(\bm a^T \bm x,\bm b^T \bm y)|&=\dfrac{|\Cov(\bm a^T \bm x,\bm b^T \bm y)|}{\sqrt{\Var(\bm a^T \bm x)}\sqrt{\Var(\bm b^T \bm y)}}=\dfrac{|\bm a^T\Sigma_{\bm x \bm y}\bm b|}{\sqrt{\bm a^T \Sigma_{\bm x \bm x}\bm a \sqrt{\bm b^T \Sigma_{\bm y\bm y}\bm b}}}
+\end{align*}
+令$\bm u = \Sigma_{\bm x \bm x}^{\frac{1}{2}}\bm a,\quad \bm v = \Sigma_{\bm y \bm y}^{\frac{1}{2}}\bm b$
+\begin{align*}
+    LHS = \dfrac{|\bm u ^T(\Sigma_{\bm x\bm x}^{-\frac{1}{2}}\Sigma_{\bm x\bm y}\Sigma_{\bm y\bm y}^{-\frac{1}{2}}\bm v)|}{\sqrt{\bm u^T\bm u}\sqrt{\bm v^T\bm v}}&\leq  \dfrac{\sqrt{\bm u^T\bm u}\sqrt{(\Sigma_{\bm x\bm x}^{-\frac{1}{2}}\Sigma_{\bm x\bm y}\Sigma_{\bm y\bm y}^{-\frac{1}{2}}\bm v)^T(\Sigma_{\bm x\bm x}^{-\frac{1}{2}}\Sigma_{\bm x\bm y}\Sigma_{\bm y\bm y}^{-\frac{1}{2}}\bm v)}}{\sqrt{\bm u^T\bm u}\sqrt{\bm v^T\bm v}}\\
+    &=\dfrac{\sqrt{\bm v^T \Phi \bm v}}{\sqrt{\bm v^T\bm v}}\leq \sqrt{\lambda_{max}(\Phi)}
+\end{align*}
+两次放缩分别用到了Cauchy不等式和矩阵二范数性质。利用两次取等条件可以确定$\bm a,\bm b$(不妨设两者模长为1)。
+\end{proof}
+
+类比到线性模型中，我们有
+\begin{theorem}设有截距线性回归模型$\bm y=X\bm \beta +e$满足Gauss-Markov假设。则
+    \[R^2=\max_{\bm u \in C(X)}(r_{\bm u,\bm y})^2=(r_{\bm y,\hat{\bm y}})^2=\dfrac{s_{y\bm x}s_{\bm x\bm x}^{-}s_{\bm x y}}{s_{yy}}\]
+\end{theorem}
+\begin{proof}
+    参考PPT定理1.2.6证明。
+\end{proof}
+
+
+\end{document}
